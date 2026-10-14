@@ -9,6 +9,7 @@ import {
   ErrorPartidoNoEncontrado,
   ErrorPartidoAmbiguo,
 } from "./vistas-modelo/buscar-partido.vm.js";
+import { ErrorRespuesta365Invalida } from "./vistas-modelo/sync.vm.js";
 import { ErrorAPI365 } from "./modelos/api-365.js";
 import { ErrorSupabase } from "./modelos/supabase.js";
 import { rutasSync } from "./vistas/rutas-sync.js";
@@ -56,6 +57,8 @@ export function crearServidor() {
     // Cualquier 4xx propio de Fastify (JSON inválido, tipo de contenido, tamaño…) se uniforma como VALIDACION.
     const statusCode = (error as unknown as Record<string, unknown>).statusCode;
     if (typeof statusCode === "number" && statusCode >= 400 && statusCode < 500) {
+      // Solo metodo, URL, status y mensaje: nunca cuerpo ni headers (pueden traer el token).
+      console.warn(`${peticion.method} ${peticion.url} ${statusCode}: ${error.message}`);
       return respuesta.status(400).send({
         error: { codigo: "VALIDACION", mensaje: "El cuerpo de la petición no es un JSON válido" },
       });
@@ -80,7 +83,11 @@ export function crearServidor() {
         error: { codigo: "PARTIDO_AMBIGUO", mensaje: "Múltiples candidatos ambiguos", candidatos: error.candidatos },
       });
     }
-    if (error instanceof ErrorAPI365 || error instanceof ErrorSupabase) {
+    if (
+      error instanceof ErrorAPI365 ||
+      error instanceof ErrorSupabase ||
+      error instanceof ErrorRespuesta365Invalida
+    ) {
       console.error(`${peticion.method} ${peticion.url}`, error);
       return respuesta.status(502).send({
         error: { codigo: "STATS_NO_DISPONIBLE", mensaje: "Servicio de estadísticas no disponible" },

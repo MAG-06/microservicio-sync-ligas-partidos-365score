@@ -1,4 +1,4 @@
-/** Tests del manejador central de errores: JSON mal formado, cuerpo vacio, error interno */
+/** Tests del manejador central de errores: JSON mal formado, cuerpo vacio, error interno, log de 4xx */
 
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
@@ -10,6 +10,19 @@ process.env.SUPABASE_KEY = "test-key";
 process.env.SYNC_TOKEN = "test-sync-token";
 
 const AUTH = { authorization: "Bearer test-sync-token" };
+
+/** Ejecuta `fn` capturando console.warn; devuelve lo que se logueo */
+async function capturarWarn(fn: () => Promise<unknown>): Promise<string[]> {
+  const original = console.warn;
+  const lineas: string[] = [];
+  console.warn = (...args: unknown[]) => { lineas.push(args.map(String).join(" ")); };
+  try {
+    await fn();
+  } finally {
+    console.warn = original;
+  }
+  return lineas;
+}
 
 describe("manejador de errores: JSON mal formado", () => {
   let app: FastifyInstance;
@@ -27,6 +40,16 @@ describe("manejador de errores: JSON mal formado", () => {
     const body = JSON.parse(resp.body);
     assert.equal(body.error.codigo, "VALIDACION");
     assert.equal(body.error.mensaje, "El cuerpo de la petición no es un JSON válido");
+  });
+
+  it("loguea con console.warn metodo, URL, status y mensaje, sin cuerpo ni headers", async () => {
+    const lineas = await capturarWarn(() => app.inject({
+      method: "POST",
+      url: "/api/sync",
+      headers: { ...AUTH, "content-type": "application/json" },
+      payload: "{malo",
+    }));
+    assert.deepEqual(lineas, ["POST /api/sync 400: El cuerpo de la petición no es un JSON válido"]);
   });
 });
 
@@ -46,6 +69,27 @@ describe("manejador de errores: cualquier 4xx de Fastify", () => {
     const body = JSON.parse(resp.body);
     assert.equal(body.error.codigo, "VALIDACION");
     assert.equal(body.error.mensaje, "El cuerpo de la petición no es un JSON válido");
+  });
+
+  it("loguea el statusCode original de Fastify (415) con console.warn, sin cuerpo ni token", async () => {
+    const lineas = await capturarWarn(() => app.inject({
+      method: "POST",
+      url: "/api/sync",
+      headers: { ...AUTH, "content-type": "text/xml" },
+      payload: "<sync/>",
+    }));
+    assert.equal(lineas.length, 1);
+    assert.match(lineas[0], /^POST \/api\/sync 415: /);
+    assert.ok(!lineas[0].includes("<sync/>"), "No debe loguear el cuerpo");
+    assert.ok(!lineas[0].includes("test-sync-token"), "No debe loguear headers");
+  });
+
+  it("los 4xx que no son de Fastify (401, VALIDACION de Zod) no pasan por console.warn", async () => {
+    const lineas = await capturarWarn(async () => {
+      await app.inject({ method: "POST", url: "/api/sync" });
+      await app.inject({ method: "GET", url: "/buscar-partido" });
+    });
+    assert.deepEqual(lineas, []);
   });
 });
 

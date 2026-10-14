@@ -32,9 +32,18 @@ export interface Equipo365DB {
 
 // --- Respuestas de los endpoints ---
 
+export interface ErrorSync {
+  competition_id: number;
+  motivo: string;
+}
+
 export interface RespuestaSync {
+  /** Competiciones intentadas (incluye las que fallaron) */
   ligas: number;
+  /** Partidos guardados de las competiciones que se sincronizaron bien */
   partidos: number;
+  /** Una entrada por competicion que fallo; las demas se sincronizan igual */
+  errores: ErrorSync[];
 }
 
 export interface RespuestaBuscarPartido {

@@ -70,8 +70,29 @@ Ligas de la casa con equivalencia activa (la misma regla que usa `/buscar-partid
 
 Header `Authorization: Bearer <SYNC_TOKEN>`. Toma las `competition_id_365` distintas de `equivalencias_liga` con `activa = true`, pide a 365Scores sus partidos actuales (máx. 2 ligas a la vez, pausa 1–2 s), hace upsert de partidos y equipos y actualiza `ultima_sincronizacion`.
 
+Una competición que falla (365Scores caído o con formato inesperado, error de Supabase…) **no tumba el sync**: se loguea con `console.error`, se agrega a `errores` y se sigue con las demás. Su `ultima_sincronizacion` no se toca. La respuesta es 200 aunque haya errores; solo responde 502 si falla la lectura inicial de `equivalencias_liga`.
+
 ```json
-{ "ligas": 12, "partidos": 340 }
+{
+  "ligas": 12,
+  "partidos": 340,
+  "errores": [
+    { "competition_id": 999, "motivo": "Respuesta de 365Scores con formato inesperado: games.0.id: Expected number, received string; games.0.startTime: Required; games.0.statusText: Required (+3 mas)" }
+  ]
+}
+```
+
+- `ligas`: competiciones intentadas (incluye las que fallaron; sincronizadas = `ligas − errores.length`).
+- `partidos`: partidos guardados de las competiciones que salieron bien.
+- `errores`: una entrada por competición fallida; `[]` si todo salió bien. Si el fallo es de Zod, `motivo` resume las 3 primeras issues (`path: message`).
+
+En el log del servicio queda el progreso:
+
+```
+[sync] Inicio: 12 ligas en 6 lotes
+[sync] Lote 1/6 terminado (2/12 ligas)
+…
+[sync] Fin: 12 ligas, 340 partidos, 1 errores en 18.4 s
 ```
 
 Se dispara a diario a las 6:30 a. m. (Bogotá) con el workflow `.github/workflows/sync-365.yml` (secrets `SYNC365_URL` y `SYNC_TOKEN`).
@@ -82,13 +103,13 @@ Formato: `{ "error": { "codigo": "…", "mensaje": "…" } }`
 
 | Código | HTTP | Cuándo |
 |---|---|---|
-| `VALIDACION` | 400 | Query inválida (trae `detalles` con los issues de Zod) o JSON mal formado y cualquier otro 4xx de Fastify (Content-Type no soportado, cuerpo muy grande…) |
+| `VALIDACION` | 400 | Query inválida (trae `detalles` con los issues de Zod) o JSON mal formado y cualquier otro 4xx de Fastify (Content-Type no soportado, cuerpo muy grande…). Los 4xx de Fastify se loguean con `console.warn` (método, URL, status original y mensaje; nunca cuerpo ni headers) |
 | `NO_AUTORIZADO` | 401 | Token faltante o inválido |
 | `LIGA_NO_MAPEADA` | 404 | La liga de la casa no tiene equivalencia activa en 365 |
 | `PARTIDO_NO_ENCONTRADO` | 404 | No hay partido para esa fecha y equipos |
 | `RUTA_NO_ENCONTRADA` | 404 | Ruta inexistente |
 | `PARTIDO_AMBIGUO` | 409 | Varios candidatos; trae `candidatos` |
-| `STATS_NO_DISPONIBLE` | 502 | Falló 365Scores o Supabase |
+| `STATS_NO_DISPONIBLE` | 502 | Falló 365Scores o Supabase, o 365Scores respondió con un formato que no pasa Zod (p. ej. al sincronizar una liga desde `/buscar-partido`). El detalle va al log con `console.error` |
 | `ERROR_INTERNO` | 500 | Error no previsto (el detalle solo va al log) |
 
 ---
