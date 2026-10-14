@@ -1,0 +1,196 @@
+{
+  "games": [
+    {
+      "id": 4732029,
+      "competitionId": 620,
+      "startTime": "2026-10-13T18:30:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 7,
+      "homeCompetitor": {
+        "id": 10224,
+        "name": "Atlético Bucaramanga"
+      },
+      "awayCompetitor": {
+        "id": 20841,
+        "name": "Águilas Doradas"
+      }
+    },
+    {
+      "id": 4731972,
+      "competitionId": 620,
+      "startTime": "2026-10-13T20:30:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 13,
+      "homeCompetitor": {
+        "id": 8637,
+        "name": "Millonarios"
+      },
+      "awayCompetitor": {
+        "id": 7289,
+        "name": "Once Caldas"
+      }
+    },
+    {
+      "id": 4732060,
+      "competitionId": 620,
+      "startTime": "2026-10-14T16:30:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 4,
+      "homeCompetitor": {
+        "id": 7204,
+        "name": "Junior FC"
+      },
+      "awayCompetitor": {
+        "id": 8638,
+        "name": "Deportivo Pereira"
+      }
+    },
+    {
+      "id": 4732034,
+      "competitionId": 620,
+      "startTime": "2026-10-14T18:30:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 7,
+      "homeCompetitor": {
+        "id": 7644,
+        "name": "Independiente Santa Fe"
+      },
+      "awayCompetitor": {
+        "id": 10377,
+        "name": "Jaguares de Córdoba"
+      }
+    },
+    {
+      "id": 4732091,
+      "competitionId": 620,
+      "startTime": "2026-10-17T15:00:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 1,
+      "homeCompetitor": {
+        "id": 8641,
+        "name": "Boyacá Chicó"
+      },
+      "awayCompetitor": {
+        "id": 8640,
+        "name": "Atlético Nacional"
+      }
+    },
+    {
+      "id": 4731956,
+      "competitionId": 620,
+      "startTime": "2026-10-17T20:10:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 8643,
+        "name": "Independiente Medellín"
+      },
+      "awayCompetitor": {
+        "id": 7289,
+        "name": "Once Caldas"
+      }
+    },
+    {
+      "id": 4731957,
+      "competitionId": 620,
+      "startTime": "2026-10-18T14:00:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 20841,
+        "name": "Águilas Doradas"
+      },
+      "awayCompetitor": {
+        "id": 7635,
+        "name": "Deportes Tolima"
+      }
+    },
+    {
+      "id": 4731953,
+      "competitionId": 620,
+      "startTime": "2026-10-18T16:00:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 10224,
+        "name": "Atlético Bucaramanga"
+      },
+      "awayCompetitor": {
+        "id": 8645,
+        "name": "América de Cali"
+      }
+    },
+    {
+      "id": 4731952,
+      "competitionId": 620,
+      "startTime": "2026-10-18T18:05:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 10378,
+        "name": "Llaneros FC"
+      },
+      "awayCompetitor": {
+        "id": 7644,
+        "name": "Independiente Santa Fe"
+      }
+    },
+    {
+      "id": 4731950,
+      "competitionId": 620,
+      "startTime": "2026-10-18T20:10:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 8639,
+        "name": "Deportivo Cali"
+      },
+      "awayCompetitor": {
+        "id": 7204,
+        "name": "Junior FC"
+      }
+    },
+    {
+      "id": 4731954,
+      "competitionId": 620,
+      "startTime": "2026-10-19T18:30:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 15,
+      "homeCompetitor": {
+        "id": 8637,
+        "name": "Millonarios"
+      },
+      "awayCompetitor": {
+        "id": 10377,
+        "name": "Jaguares de Córdoba"
+      }
+    },
+    {
+      "id": 4732012,
+      "competitionId": 620,
+      "startTime": "2026-10-21T18:15:00-05:00",
+      "statusText": "Prog.",
+      "statusGroup": 2,
+      "roundNum": 9,
+      "homeCompetitor": {
+        "id": 10378,
+        "name": "Llaneros FC"
+      },
+      "awayCompetitor": {
+        "id": 8639,
+        "name": "Deportivo Cali"
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "games": [
+    {
+      "id": 3847291,
+      "competitionId": 620,
+      "startTime": "2025-02-15T20:00:00-05:00",
+      "statusText": "Scheduled",
+      "statusGroup": 2,
+      "roundNum": 5,
+      "homeCompetitor": { "id": 101, "name": "Atlético Nacional" },
+      "awayCompetitor": { "id": 102, "name": "Millonarios FC" }
+    },
+    {
+      "id": 3847292,
+      "competitionId": 620,
+      "startTime": "2025-02-15T18:00:00-05:00",
+      "statusText": "Ended",
+      "statusGroup": 4,
+      "roundNum": 5,
+      "homeCompetitor": { "id": 103, "name": "Deportivo Cali" },
+      "awayCompetitor": { "id": 104, "name": "América de Cali" }
+    },
+    {
+      "id": 3847293,
+      "competitionId": 620,
+      "startTime": "2025-02-16T16:00:00-05:00",
+      "statusText": "Scheduled",
+      "statusGroup": 2,
+      "roundNum": 5,
+      "homeCompetitor": { "id": 105, "name": "Independiente Santa Fe" },
+      "awayCompetitor": { "id": 106, "name": "Junior FC" }
+    },
+    {
+      "id": 3847294,
+      "competitionId": 620,
+      "startTime": "2025-02-15T20:00:00-05:00",
+      "statusText": "Half Time",
+      "statusGroup": 3,
+      "roundNum": 5,
+      "homeCompetitor": { "id": 107, "name": "Deportes Tolima" },
+      "awayCompetitor": { "id": 108, "name": "Once Caldas" }
+    },
+    {
+      "id": 3847295,
+      "competitionId": 620,
+      "startTime": "2025-02-15T15:30:00-05:00",
+      "statusText": "Scheduled",
+      "statusGroup": 2,
+      "roundNum": null,
+      "homeCompetitor": { "id": 109, "name": "Boyacá Chicó FC" },
+      "awayCompetitor": { "id": 110, "name": "Envigado FC" }
+    }
+  ]
+}

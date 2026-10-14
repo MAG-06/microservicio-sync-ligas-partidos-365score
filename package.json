@@ -1,0 +1,25 @@
+{
+  "name": "microservicio-sync-ligas-partidos-365score",
+  "version": "1.0.0",
+  "description": "Microservicio que sincroniza ligas y partidos programados desde 365Scores y resuelve gameId",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "node --import tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "luxon": "^3.5.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
