@@ -7,6 +7,16 @@ export function ahoraIsoBogota(): string {
   return DateTime.now().setZone(ZONA_BOGOTA).toISO()!;
 }
 
+/** Dia de hoy en Bogota como YYYY-MM-DD */
+export function hoyBogota(): string {
+  return DateTime.now().setZone(ZONA_BOGOTA).toISODate()!;
+}
+
+/** Ahora en Bogota mas `dias` (negativo = hacia atras), como ISO con zona */
+export function ahoraMasDiasIsoBogota(dias: number): string {
+  return DateTime.now().setZone(ZONA_BOGOTA).plus({ days: dias }).toISO()!;
+}
+
 export function inicioDelDiaBogota(fecha: string): DateTime {
   return DateTime.fromISO(fecha, { zone: ZONA_BOGOTA }).startOf("day");
 }

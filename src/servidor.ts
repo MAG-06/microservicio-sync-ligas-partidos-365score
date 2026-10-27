@@ -13,6 +13,7 @@ import { ErrorRespuesta365Invalida } from "./vistas-modelo/sync.vm.js";
 import { ErrorAPI365 } from "./modelos/api-365.js";
 import { ErrorSupabase } from "./modelos/supabase.js";
 import { rutasSync } from "./vistas/rutas-sync.js";
+import { rutasStandings } from "./vistas/rutas-standings.js";
 import { rutasBuscar } from "./vistas/rutas-buscar.js";
 import { rutasEquivalencias } from "./vistas/rutas-equivalencias.js";
 import { rutasSalud } from "./vistas/rutas-salud.js";
@@ -106,6 +107,7 @@ export function crearServidor() {
   });
 
   app.register(rutasSync);
+  app.register(rutasStandings);
   app.register(rutasBuscar);
   app.register(rutasEquivalencias);
   app.register(rutasSalud);

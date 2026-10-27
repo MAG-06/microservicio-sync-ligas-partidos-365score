@@ -72,3 +72,22 @@ export async function pedirPartidosActuales(competitionId: number): Promise<unkn
     topBookmaker: "4",
   });
 }
+
+export interface ConsultaStandings365 {
+  /** Sin seasonNum, 365 devuelve la temporada actual */
+  seasonNum?: number;
+  /** Solo funciona junto con seasonNum; sin el, 365 devuelve la fase actual */
+  stageNum?: number;
+  /** 1 total, 2 local, 3 visitante */
+  type: number;
+}
+
+export async function pedirStandings(competitionId: number, consulta: ConsultaStandings365): Promise<unknown> {
+  const params: Record<string, string> = {
+    competitions: String(competitionId),
+    type: String(consulta.type),
+  };
+  if (consulta.seasonNum !== undefined) params.seasonNum = String(consulta.seasonNum);
+  if (consulta.stageNum !== undefined) params.stageNum = String(consulta.stageNum);
+  return pedirJson365("/web/standings/", params);
+}
