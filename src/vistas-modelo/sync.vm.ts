@@ -5,7 +5,7 @@ import { CONCURRENCIA_MAX } from "../config.js";
 import { esquemaRespuesta365 } from "../esquemas/validacion.js";
 import { pedirPartidosActuales } from "../modelos/api-365.js";
 import {
-  obtenerLigasActivas,
+  obtenerCompetitionIdsActivas,
   upsertPartidos,
   upsertEquipos,
   actualizarSincronizacionPorCompetition,
@@ -30,8 +30,7 @@ export class ErrorRespuesta365Invalida extends Error {
 /** Sincroniza todas las ligas activas; una competicion que falla se reporta en `errores` sin cortar las demas */
 export async function sincronizarTodas(): Promise<RespuestaSync> {
   const inicio = Date.now();
-  const equivalencias = await obtenerLigasActivas();
-  const competitionIds = [...new Set(equivalencias.map((e) => e.competition_id_365))];
+  const competitionIds = await obtenerCompetitionIdsActivas();
   const totalLotes = Math.ceil(competitionIds.length / CONCURRENCIA_MAX);
   console.log(`[sync] Inicio: ${competitionIds.length} ligas en ${totalLotes} lotes`);
 

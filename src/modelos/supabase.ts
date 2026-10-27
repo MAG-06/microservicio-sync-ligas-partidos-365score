@@ -5,9 +5,16 @@ import {
   TABLA_EQUIVALENCIAS,
   TABLA_PARTIDOS,
   TABLA_EQUIPOS,
+  TABLA_STANDINGS,
   FILAS_POR_PAGINA_SUPABASE,
 } from "../config.js";
-import type { EquivalenciaLigaDB, PartidoProgramadoDB, Equipo365DB } from "./tipos.js";
+import type {
+  EquivalenciaLigaDB,
+  PartidoProgramadoDB,
+  Equipo365DB,
+  FotoStandingDB,
+  MetaFotoStandingDB,
+} from "./tipos.js";
 
 export class ErrorSupabase extends Error {
   constructor(message: string) {
@@ -58,7 +65,7 @@ async function peticionSupabase(
 
 // --- Equivalencias de liga ---
 
-export async function obtenerLigasActivas(): Promise<EquivalenciaLigaDB[]> {
+async function obtenerLigasActivas(): Promise<EquivalenciaLigaDB[]> {
   const { base, llave } = obtenerCredenciales();
   const params = new URLSearchParams({
     select: "*",
@@ -69,6 +76,12 @@ export async function obtenerLigasActivas(): Promise<EquivalenciaLigaDB[]> {
   });
   if (!resp.ok) throw new ErrorSupabase(`Supabase equivalencias: ${resp.status} ${await resp.text()}`);
   return (await resp.json()) as EquivalenciaLigaDB[];
+}
+
+/** competition_id_365 distintas con equivalencia activa (las que sincronizan /api/sync y /api/sync-standings) */
+export async function obtenerCompetitionIdsActivas(): Promise<number[]> {
+  const equivalencias = await obtenerLigasActivas();
+  return [...new Set(equivalencias.map((e) => e.competition_id_365))];
 }
 
 export async function obtenerEquivalencia(casa: string, ligaCasaId: string): Promise<EquivalenciaLigaDB | null> {
@@ -139,6 +152,28 @@ export async function upsertPartidos(partidos: PartidoProgramadoDB[]): Promise<v
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
   });
   if (!resp.ok) throw new ErrorSupabase(`Supabase upsert partidos: ${resp.status} ${await resp.text()}`);
+}
+
+/** competition_id con algun partido entre `desde` y `hasta` (ISO); solo lee competition_id y fecha_hora */
+export async function obtenerCompetitionIdsConPartidos(desde: string, hasta: string): Promise<Set<number>> {
+  const { base, llave } = obtenerCredenciales();
+  const ids = new Set<number>();
+  for (let offset = 0; ; offset += FILAS_POR_PAGINA_SUPABASE) {
+    const params = new URLSearchParams({
+      select: "competition_id",
+      and: `(fecha_hora.gte.${desde},fecha_hora.lte.${hasta})`,
+      order: "game_id.asc",
+      limit: String(FILAS_POR_PAGINA_SUPABASE),
+      offset: String(offset),
+    });
+    const resp = await peticionSupabase(`${base}/rest/v1/${TABLA_PARTIDOS}?${params}`, llave, {
+      method: "GET",
+    });
+    if (!resp.ok) throw new ErrorSupabase(`Supabase competiciones con partidos: ${resp.status} ${await resp.text()}`);
+    const pagina = (await resp.json()) as { competition_id: number }[];
+    if (pagina.length === 0) return ids;
+    for (const p of pagina) ids.add(p.competition_id);
+  }
 }
 
 export async function buscarPartidosPorCompeticionYFecha(
@@ -214,6 +249,60 @@ export async function agregarAlias(equipoId: number, nuevoAlias: string): Promis
     body: JSON.stringify({ alias: nuevos }),
   });
   if (!respPatch.ok) throw new ErrorSupabase(`Supabase agregar alias: ${respPatch.status} ${await respPatch.text()}`);
+}
+
+// --- Standings (fotos por dia) ---
+
+/** Todas las fotos de una competicion sin sus filas, de la mas reciente a la mas vieja (pagina hasta una pagina vacia) */
+export async function listarFotosStandings(competitionId: number): Promise<MetaFotoStandingDB[]> {
+  const { base, llave } = obtenerCredenciales();
+  const fotos: MetaFotoStandingDB[] = [];
+  for (;;) {
+    const params = new URLSearchParams({
+      select: "id,season_num,stage_num,type,fecha,vigente_al_capturar",
+      competition_id: `eq.${competitionId}`,
+      order: "fecha.desc,id.desc",
+      limit: String(FILAS_POR_PAGINA_SUPABASE),
+      offset: String(fotos.length),
+    });
+    const resp = await peticionSupabase(`${base}/rest/v1/${TABLA_STANDINGS}?${params}`, llave, {
+      method: "GET",
+    });
+    if (!resp.ok) throw new ErrorSupabase(`Supabase listar standings: ${resp.status} ${await resp.text()}`);
+    const pagina = (await resp.json()) as MetaFotoStandingDB[];
+    if (pagina.length === 0) return fotos;
+    fotos.push(...pagina);
+  }
+}
+
+export async function obtenerFilasDeFotos(ids: number[]): Promise<(Pick<FotoStandingDB, "rows"> & { id: number })[]> {
+  if (ids.length === 0) return [];
+  const { base, llave } = obtenerCredenciales();
+  const params = new URLSearchParams({
+    select: "id,rows",
+    id: `in.(${ids.join(",")})`,
+  });
+  const resp = await peticionSupabase(`${base}/rest/v1/${TABLA_STANDINGS}?${params}`, llave, {
+    method: "GET",
+  });
+  if (!resp.ok) throw new ErrorSupabase(`Supabase filas standings: ${resp.status} ${await resp.text()}`);
+  return (await resp.json()) as (Pick<FotoStandingDB, "rows"> & { id: number })[];
+}
+
+/**
+ * Upsert por la clave unica: si ya hay foto ese dia (sync corrido dos veces) se reemplaza.
+ * La PK es id: sin on_conflict PostgREST no hace merge sobre la clave unica y la segunda escritura del dia da 409.
+ */
+export async function upsertFotosStandings(fotos: FotoStandingDB[]): Promise<void> {
+  if (fotos.length === 0) return;
+  const { base, llave } = obtenerCredenciales();
+  const url = `${base}/rest/v1/${TABLA_STANDINGS}?on_conflict=competition_id,season_num,stage_num,type,fecha`;
+  const resp = await peticionSupabase(url, llave, {
+    method: "POST",
+    body: JSON.stringify(fotos),
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+  });
+  if (!resp.ok) throw new ErrorSupabase(`Supabase upsert standings: ${resp.status} ${await resp.text()}`);
 }
 
 // --- Ligas ---
