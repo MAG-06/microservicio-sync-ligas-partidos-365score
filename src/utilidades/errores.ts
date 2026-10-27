@@ -8,6 +8,7 @@ export type CodigoError =
   | "LIGA_NO_MAPEADA"
   | "PARTIDO_NO_ENCONTRADO"
   | "PARTIDO_AMBIGUO"
+  | "SYNC_EN_CURSO"
   | "STATS_NO_DISPONIBLE"
   | "ERROR_INTERNO";
 
